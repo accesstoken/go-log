@@ -17,10 +17,10 @@ func (receiver Logger) Logf(format string, a ...interface{}) {
 	fmt.Fprintf(receiver.Writer,  format, a...)
 }
 
-func (receiver Logger) Begin(a ...interface{}) {
+func (receiver Logger) Begin() {
 	receiver.Log("BEGIN")
 }
 
-func (receiver Logger) End(a ...interface{}) {
+func (receiver Logger) End() {
 	receiver.Log("END")
 }
