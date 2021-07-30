@@ -2,20 +2,25 @@ package main
 
 import (
 	"fmt"
-	"github.com/accesstoken/go-training/chapter4/section4.2/logger"
-	"os"
+	"io"
 )
 
-func main() {
-	var log logger.Logger
-	log.Writer = os.Stdout
-	//log.Writer = ioutil.Discard
-	log.Begin()
-	var name string = "Joe"
-	log.Logf("The name was %q\n", name)
-	var msg string = "Hello world!"
-	fmt.Println(msg)
-	log.Log("I said:", msg)
+type Logger struct {
+	Writer io.Writer
+}
 
-	log.End()
+func (receiver Logger) Log(a ...interface{}) {
+	fmt.Fprintln(receiver.Writer,  a...)
+}
+
+func (receiver Logger) Logf(format string, a ...interface{}) {
+	fmt.Fprintf(receiver.Writer,  format, a...)
+}
+
+func (receiver Logger) Begin(a ...interface{}) {
+	receiver.Log("BEGIN")
+}
+
+func (receiver Logger) End(a ...interface{}) {
+	receiver.Log("END")
 }
