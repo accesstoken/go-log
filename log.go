@@ -9,12 +9,16 @@ type Logger struct {
 	Writer io.Writer
 }
 
-func (receiver Logger) Log(a ...interface{}) {
-	fmt.Fprintln(receiver.Writer,  a...)
+func (receiver Logger) Logf(format string, a ...interface{}) {
+	if nil == receiver.Writer {
+		return
+	}
+	fmt.Fprintf(receiver.Writer, format + "\n", a...)
 }
 
-func (receiver Logger) Logf(format string, a ...interface{}) {
-	fmt.Fprintf(receiver.Writer,  format, a...)
+func (receiver Logger) Log(a ...interface{}) {
+	s := fmt.Sprint(a...)
+	receiver.Logf("%s", s)
 }
 
 func (receiver Logger) Begin() {
