@@ -6,14 +6,15 @@ import (
 )
 
 type Logger struct {
-	Writer io.Writer
+	Writer   io.Writer
+	Prefixes []string
 }
 
 func (receiver Logger) Logf(format string, a ...interface{}) {
 	if nil == receiver.Writer {
 		return
 	}
-	fmt.Fprintf(receiver.Writer, format + "\n", a...)
+	fmt.Fprintf(receiver.Writer, format+"\n", a...)
 }
 
 func (receiver Logger) Log(a ...interface{}) {
@@ -27,4 +28,10 @@ func (receiver Logger) Begin() {
 
 func (receiver Logger) End() {
 	receiver.Log("END")
+}
+
+func (receiver Logger) Prefix(newPrefix ...string) Logger {
+	var newLogger = receiver
+	newLogger.Prefixes = append(newLogger.Prefixes, newPrefix...)
+	return newLogger
 }
