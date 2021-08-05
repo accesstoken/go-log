@@ -3,16 +3,21 @@ package log
 import (
 	"fmt"
 	"io"
+	"strings"
 )
 
 type Logger struct {
 	Writer   io.Writer
-	Prefixes []string
+	prefixes []string
 }
 
 func (receiver Logger) Logf(format string, a ...interface{}) {
 	if nil == receiver.Writer {
 		return
+	}
+	if receiver.prefixes != nil {
+		var prefixString string = strings.Join(receiver.prefixes[:], ": ") + ":"
+		a = append([]interface{}{prefixString}, a...)
 	}
 	fmt.Fprintf(receiver.Writer, format+"\n", a...)
 }
@@ -32,6 +37,6 @@ func (receiver Logger) End() {
 
 func (receiver Logger) Prefix(newPrefix ...string) Logger {
 	var newLogger = receiver
-	newLogger.Prefixes = append(newLogger.Prefixes, newPrefix...)
+	newLogger.prefixes = append(newLogger.prefixes, newPrefix...)
 	return newLogger
 }
