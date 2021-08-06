@@ -12,14 +12,25 @@ type Logger struct {
 }
 
 func (receiver Logger) Logf(format string, a ...interface{}) {
-	if nil == receiver.Writer {
+
+	writer := receiver.Writer
+
+	if nil == writer {
 		return
 	}
+
+	s := fmt.Sprintf(format+"\n", a...)
+
 	if receiver.prefixes != nil {
-		var prefixString string = strings.Join(receiver.prefixes[:], ": ") + ":"
-		a = append([]interface{}{prefixString}, a...)
+		prefixString := strings.Join(receiver.prefixes[:], ": ") + ": "
+		s = prefixString + s
 	}
-	fmt.Fprintf(receiver.Writer, format+"\n", a...)
+
+	_, err := io.WriteString(writer, s)
+
+	if err != nil {
+		return
+	}
 }
 
 func (receiver Logger) Log(a ...interface{}) {
