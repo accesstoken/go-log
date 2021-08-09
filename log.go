@@ -19,14 +19,13 @@ func (receiver Logger) Logf(format string, a ...interface{}) {
 		return
 	}
 
-	s := fmt.Sprintf(format+"\n", a...)
+	s := fmt.Sprintf(format, a...)
 
 	if receiver.prefixes != nil {
 		prefixString := strings.Join(receiver.prefixes[:], ": ") + ": "
 		s = prefixString + s
 	}
-
-	_, err := io.WriteString(writer, s)
+	_, err := io.WriteString(writer, s + "\n")
 
 	if err != nil {
 		return
