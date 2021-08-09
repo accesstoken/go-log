@@ -98,3 +98,28 @@ func TestLogger_Log(t *testing.T) {
 
 	}
 }
+
+func TestLogger_Prefix(t *testing.T) {
+	var output strings.Builder
+	var logger Logger
+	logger.Writer = &output
+
+	prefixedLogger := logger.Prefix("apple", "banana", "cherry")
+
+	prefixedLogger.Log("Hello world with prefixes!")
+	expected := "apple: banana: cherry: Hello world with prefixes!\n"
+	if output.String() != expected {
+		t.Errorf("Log did not log what was expected.")
+		t.Logf("EXPECTED: %q", expected)
+		t.Logf("ACTUAL:   %q", output.String())
+	}
+	doublePrefixedLogger := prefixedLogger.Prefix("date")
+
+	doublePrefixedLogger.Log("I am here with more prefixes!")
+	expected = "apple: banana: cherry: Hello world with prefixes!\napple: banana: cherry: date: I am here with more prefixes!\n"
+	if output.String() != expected {
+		t.Errorf("Log did not log what was expected.")
+		t.Logf("EXPECTED: %q", expected)
+		t.Logf("ACTUAL:   %q", output.String())
+	}
+}
