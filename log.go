@@ -3,6 +3,8 @@ package log
 import (
 	"fmt"
 	"io"
+	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -21,6 +23,17 @@ func (receiver Logger) Logf(format string, a ...interface{}) {
 
 	s := fmt.Sprintf(format, a...)
 
+	pc, _, _, _ := runtime.Caller(1)
+	fn := runtime.FuncForPC(pc)
+	var fnName string
+	if fn == nil {
+		fnName = "?()"
+	} else {
+		fnName = strings.TrimLeft(filepath.Ext(fn.Name()), ".") + "()"
+	}
+
+	s = fnName + " " + s
+	
 	if receiver.prefixes != nil {
 		prefixString := strings.Join(receiver.prefixes[:], ": ") + ": "
 		s = prefixString + s
