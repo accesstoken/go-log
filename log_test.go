@@ -15,27 +15,27 @@ func TestLogger_Logf(t *testing.T) {
 		{
 			Format:     "%s",
 			Parameters: []interface{}{"Hello World!"},
-			Expected:   "Hello World!\n",
+			Expected:   "TestLogger_Logf() Hello World!\n",
 		},
 		{
 			Format:     "%s",
 			Parameters: []interface{}{""},
-			Expected:   "\n",
+			Expected:   "TestLogger_Logf() \n",
 		},
 		{
 			Format:     "",
 			Parameters: []interface{}{},
-			Expected:   "\n",
+			Expected:   "TestLogger_Logf() \n",
 		},
 		{
 			Format:     "%d + %d = %d",
 			Parameters: []interface{}{2, 3, 5},
-			Expected:   "2 + 3 = 5\n",
+			Expected:   "TestLogger_Logf() 2 + 3 = 5\n",
 		},
 		{
 			Format:     "My name is %s.",
 			Parameters: []interface{}{"Joe"},
-			Expected:   "My name is Joe.\n",
+			Expected:   "TestLogger_Logf() My name is Joe.\n",
 		},
 	}
 
@@ -65,19 +65,19 @@ func TestLogger_Log(t *testing.T) {
 	}{
 		{
 			Parameters: []interface{}{"Hello World!"},
-			Expected:   "Hello World!\n",
+			Expected:   "Log() Hello World!\n",
 		},
 		{
 			Parameters: []interface{}{""},
-			Expected:   "\n",
+			Expected:   "Log() \n",
 		},
 		{
 			Parameters: []interface{}{},
-			Expected:   "\n",
+			Expected:   "Log() \n",
 		},
 		{
 			Parameters: []interface{}{"Hello", " ", "World!"},
-			Expected:   "Hello World!\n",
+			Expected:   "Log() Hello World!\n",
 		},
 	}
 
@@ -107,7 +107,7 @@ func TestLogger_Prefix(t *testing.T) {
 	prefixedLogger := logger.Prefix("apple", "banana", "cherry")
 
 	prefixedLogger.Log("Hello world with prefixes!")
-	expected := "apple: banana: cherry: Hello world with prefixes!\n"
+	expected := "apple: banana: cherry: Log() Hello world with prefixes!\n"
 	if output.String() != expected {
 		t.Errorf("Log did not log what was expected.")
 		t.Logf("EXPECTED: %q", expected)
@@ -116,8 +116,35 @@ func TestLogger_Prefix(t *testing.T) {
 	doublePrefixedLogger := prefixedLogger.Prefix("date")
 
 	doublePrefixedLogger.Log("I am here with more prefixes!")
-	expected = "apple: banana: cherry: Hello world with prefixes!\napple: banana: cherry: date: I am here with more prefixes!\n"
+	expected = "apple: banana: cherry: Log() Hello world with prefixes!\napple: banana: cherry: date: Log() I am here with more prefixes!\n"
 	if output.String() != expected {
+		t.Errorf("Log did not log what was expected.")
+		t.Logf("EXPECTED: %q", expected)
+		t.Logf("ACTUAL:   %q", output.String())
+	}
+}
+
+func TestLogger_Begin(t *testing.T) {
+	var output strings.Builder
+	var logger Logger
+	logger.Writer = &output
+	logger.Begin()
+	expected := "Log() BEGIN\n"
+	if output.String() != expected {
+		t.Errorf("Log did not log what was expected.")
+		t.Logf("EXPECTED: %q", expected)
+		t.Logf("ACTUAL:   %q", output.String())
+	}
+}
+
+func TestLogger_End(t *testing.T) {
+	var output strings.Builder
+	var logger Logger
+	logger.Writer = &output
+	subLogger := logger.Begin()
+	subLogger.End()
+	expected := "Log() BEGIN\nLog() END δt="
+	if !strings.Contains(output.String(), expected) {
 		t.Errorf("Log did not log what was expected.")
 		t.Logf("EXPECTED: %q", expected)
 		t.Logf("ACTUAL:   %q", output.String())

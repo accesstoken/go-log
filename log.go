@@ -6,11 +6,13 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 )
 
 type Logger struct {
 	Writer   io.Writer
 	prefixes []string
+	startTime time.Time
 }
 
 func (receiver Logger) Logf(format string, a ...interface{}) {
@@ -33,7 +35,7 @@ func (receiver Logger) Logf(format string, a ...interface{}) {
 	}
 
 	s = fnName + " " + s
-	
+
 	if receiver.prefixes != nil {
 		prefixString := strings.Join(receiver.prefixes[:], ": ") + ": "
 		s = prefixString + s
@@ -50,12 +52,16 @@ func (receiver Logger) Log(a ...interface{}) {
 	receiver.Logf("%s", s)
 }
 
-func (receiver Logger) Begin() {
-	receiver.Log("BEGIN")
+func (receiver Logger) Begin() Logger{
+	var newLogger = receiver
+	newLogger.startTime = time.Now()
+	newLogger.Log("BEGIN")
+	return newLogger
 }
 
 func (receiver Logger) End() {
-	receiver.Log("END")
+	elapsed := time.Since(receiver.startTime)
+	receiver.Log("END δt=", elapsed)
 }
 
 func (receiver Logger) Prefix(newPrefix ...string) Logger {
