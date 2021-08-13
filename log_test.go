@@ -15,27 +15,27 @@ func TestLogger_Logf(t *testing.T) {
 		{
 			Format:     "%s",
 			Parameters: []interface{}{"Hello World!"},
-			Expected:   "TestLogger_Logf() Hello World!\n",
+			Expected:   "TestLogger_Logf() -> Hello World!\n",
 		},
 		{
 			Format:     "%s",
 			Parameters: []interface{}{""},
-			Expected:   "TestLogger_Logf() \n",
+			Expected:   "TestLogger_Logf() -> \n",
 		},
 		{
 			Format:     "",
 			Parameters: []interface{}{},
-			Expected:   "TestLogger_Logf() \n",
+			Expected:   "TestLogger_Logf() -> \n",
 		},
 		{
 			Format:     "%d + %d = %d",
 			Parameters: []interface{}{2, 3, 5},
-			Expected:   "TestLogger_Logf() 2 + 3 = 5\n",
+			Expected:   "TestLogger_Logf() -> 2 + 3 = 5\n",
 		},
 		{
 			Format:     "My name is %s.",
 			Parameters: []interface{}{"Joe"},
-			Expected:   "TestLogger_Logf() My name is Joe.\n",
+			Expected:   "TestLogger_Logf() -> My name is Joe.\n",
 		},
 	}
 
@@ -45,10 +45,10 @@ func TestLogger_Logf(t *testing.T) {
 		var logger Logger
 		logger.Writer = &output
 
-		logger.Logf(test.Format, test.Parameters...)
+		logger.writef(test.Format, test.Parameters...)
 
 		if expected, actual := test.Expected, output.String(); expected != actual {
-			t.Errorf("For test #%d, Logf did not log what was expected.", testNumber)
+			t.Errorf("For test #%d, writef did not log what was expected.", testNumber)
 			t.Logf("EXPECTED: %q", expected)
 			t.Logf("ACTUAL:   %q", actual)
 			continue
@@ -65,19 +65,19 @@ func TestLogger_Log(t *testing.T) {
 	}{
 		{
 			Parameters: []interface{}{"Hello World!"},
-			Expected:   "Log() Hello World!\n",
+			Expected:   "TestLogger_Log() -> Hello World!\n",
 		},
 		{
 			Parameters: []interface{}{""},
-			Expected:   "Log() \n",
+			Expected:   "TestLogger_Log() -> \n",
 		},
 		{
 			Parameters: []interface{}{},
-			Expected:   "Log() \n",
+			Expected:   "TestLogger_Log() -> \n",
 		},
 		{
 			Parameters: []interface{}{"Hello", " ", "World!"},
-			Expected:   "Log() Hello World!\n",
+			Expected:   "TestLogger_Log() -> Hello World!\n",
 		},
 	}
 
@@ -87,10 +87,10 @@ func TestLogger_Log(t *testing.T) {
 		var logger Logger
 		logger.Writer = &output
 
-		logger.Log(test.Parameters...)
+		logger.write(test.Parameters...)
 
 		if expected, actual := test.Expected, output.String(); expected != actual {
-			t.Errorf("For test #%d, Log did not log what was expected.", testNumber)
+			t.Errorf("For test #%d, write did not log what was expected.", testNumber)
 			t.Logf("EXPECTED: %q", expected)
 			t.Logf("ACTUAL:   %q", actual)
 			continue
@@ -106,19 +106,23 @@ func TestLogger_Prefix(t *testing.T) {
 
 	prefixedLogger := logger.Prefix("apple", "banana", "cherry")
 
-	prefixedLogger.Log("Hello world with prefixes!")
-	expected := "apple: banana: cherry: Log() Hello world with prefixes!\n"
+	prefixedLogger.write("Hello world with prefixes!")
+
+	expected := "TestLogger_Prefix() -> apple: banana: cherry: Hello world with prefixes!\n"
 	if output.String() != expected {
-		t.Errorf("Log did not log what was expected.")
+		t.Errorf("write did not log what was expected.")
 		t.Logf("EXPECTED: %q", expected)
 		t.Logf("ACTUAL:   %q", output.String())
+		return
 	}
+
 	doublePrefixedLogger := prefixedLogger.Prefix("date")
 
-	doublePrefixedLogger.Log("I am here with more prefixes!")
-	expected = "apple: banana: cherry: Log() Hello world with prefixes!\napple: banana: cherry: date: Log() I am here with more prefixes!\n"
+	doublePrefixedLogger.write("I am here with more prefixes!")
+	
+	expected = "TestLogger_Prefix() -> apple: banana: cherry: Hello world with prefixes!\nTestLogger_Prefix() -> apple: banana: cherry: date: I am here with more prefixes!\n"
 	if output.String() != expected {
-		t.Errorf("Log did not log what was expected.")
+		t.Errorf("write did not log what was expected.")
 		t.Logf("EXPECTED: %q", expected)
 		t.Logf("ACTUAL:   %q", output.String())
 	}
@@ -129,9 +133,9 @@ func TestLogger_Begin(t *testing.T) {
 	var logger Logger
 	logger.Writer = &output
 	logger.Begin()
-	expected := "Log() BEGIN\n"
+	expected := "TestLogger_Begin() -> BEGIN\n"
 	if output.String() != expected {
-		t.Errorf("Log did not log what was expected.")
+		t.Errorf("write did not log what was expected.")
 		t.Logf("EXPECTED: %q", expected)
 		t.Logf("ACTUAL:   %q", output.String())
 	}
@@ -143,9 +147,9 @@ func TestLogger_End(t *testing.T) {
 	logger.Writer = &output
 	subLogger := logger.Begin()
 	subLogger.End()
-	expected := "Log() BEGIN\nLog() END δt="
+	expected := "TestLogger_End() -> BEGIN\nTestLogger_End() -> END δt="
 	if !strings.Contains(output.String(), expected) {
-		t.Errorf("Log did not log what was expected.")
+		t.Errorf("write did not log what was expected.")
 		t.Logf("EXPECTED: %q", expected)
 		t.Logf("ACTUAL:   %q", output.String())
 	}
