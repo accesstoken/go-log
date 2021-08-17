@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const PackagePath = "github.com/accesstoken/go-log.Logger."
+const packagePath = "github.com/accesstoken/go-log.Logger."
 
 type Logger struct {
 	Writer    io.Writer
@@ -30,7 +30,7 @@ func funcName() string {
 	for {
 		frame, more := frames.Next()
 		fnName = frame.Function
-		if !more || !strings.HasPrefix(fnName, PackagePath) {
+		if !more || !strings.HasPrefix(fnName, packagePath) {
 			fnName = strings.TrimLeft(filepath.Ext(fnName), ".") + "()"
 			break
 		}
@@ -53,7 +53,7 @@ func (receiver Logger) writef(format string, a ...interface{}) {
 		s = prefixString + s
 	}
 
-	io.WriteString(writer, funcName()+" -> "+s+"\n")
+	io.WriteString(writer, fmt.Sprintf("%s -> %s\n", funcName(), s))
 
 }
 
