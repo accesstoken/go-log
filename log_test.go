@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestLogger_Logf(t *testing.T) {
+func TestLogger_writef(t *testing.T) {
 
 	tests := []struct {
 		Format     string
@@ -15,27 +15,27 @@ func TestLogger_Logf(t *testing.T) {
 		{
 			Format:     "%s",
 			Parameters: []interface{}{"Hello World!"},
-			Expected:   "TestLogger_Logf() -> Hello World!\n",
+			Expected:   "TestLogger_writef() -> Hello World!\n",
 		},
 		{
 			Format:     "%s",
 			Parameters: []interface{}{""},
-			Expected:   "TestLogger_Logf() -> \n",
+			Expected:   "TestLogger_writef() -> \n",
 		},
 		{
 			Format:     "",
 			Parameters: []interface{}{},
-			Expected:   "TestLogger_Logf() -> \n",
+			Expected:   "TestLogger_writef() -> \n",
 		},
 		{
 			Format:     "%d + %d = %d",
 			Parameters: []interface{}{2, 3, 5},
-			Expected:   "TestLogger_Logf() -> 2 + 3 = 5\n",
+			Expected:   "TestLogger_writef() -> 2 + 3 = 5\n",
 		},
 		{
 			Format:     "My name is %s.",
 			Parameters: []interface{}{"Joe"},
-			Expected:   "TestLogger_Logf() -> My name is Joe.\n",
+			Expected:   "TestLogger_writef() -> My name is Joe.\n",
 		},
 	}
 
@@ -57,7 +57,7 @@ func TestLogger_Logf(t *testing.T) {
 	}
 }
 
-func TestLogger_Log(t *testing.T) {
+func TestLogger_write(t *testing.T) {
 
 	tests := []struct {
 		Parameters []interface{}
@@ -65,19 +65,19 @@ func TestLogger_Log(t *testing.T) {
 	}{
 		{
 			Parameters: []interface{}{"Hello World!"},
-			Expected:   "TestLogger_Log() -> Hello World!\n",
+			Expected:   "TestLogger_write() -> Hello World!\n",
 		},
 		{
 			Parameters: []interface{}{""},
-			Expected:   "TestLogger_Log() -> \n",
+			Expected:   "TestLogger_write() -> \n",
 		},
 		{
 			Parameters: []interface{}{},
-			Expected:   "TestLogger_Log() -> \n",
+			Expected:   "TestLogger_write() -> \n",
 		},
 		{
 			Parameters: []interface{}{"Hello", " ", "World!"},
-			Expected:   "TestLogger_Log() -> Hello World!\n",
+			Expected:   "TestLogger_write() -> Hello World!\n",
 		},
 	}
 
@@ -119,8 +119,8 @@ func TestLogger_Prefix(t *testing.T) {
 	doublePrefixedLogger := prefixedLogger.Prefix("date")
 
 	doublePrefixedLogger.write("I am here with more prefixes!")
-	
-	expected = "TestLogger_Prefix() -> apple: banana: cherry: Hello world with prefixes!\nTestLogger_Prefix() -> apple: banana: cherry: date: I am here with more prefixes!\n"
+
+	expected = expected + "TestLogger_Prefix() -> apple: banana: cherry: date: I am here with more prefixes!\n"
 	if output.String() != expected {
 		t.Errorf("write did not log what was expected.")
 		t.Logf("EXPECTED: %q", expected)
@@ -152,5 +152,304 @@ func TestLogger_End(t *testing.T) {
 		t.Errorf("write did not log what was expected.")
 		t.Logf("EXPECTED: %q", expected)
 		t.Logf("ACTUAL:   %q", output.String())
+	}
+}
+
+func TestLogger_Alert(t *testing.T) {
+
+	tests := []struct {
+		level      uint8
+		Parameters []interface{}
+		Expected   string
+	}{
+		{
+			level:      0,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      1,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "TestLogger_Alert() -> Hello World!\n",
+		},
+	}
+
+	for testNumber, test := range tests {
+
+		var output strings.Builder
+		var logger Logger
+		logger.Writer = &output
+		logger = logger.Level(test.level)
+		logger.Alert(test.Parameters...)
+
+		if expected, actual := test.Expected, output.String(); expected != actual {
+			t.Errorf("For test #%d, Alert did not log what was expected.", testNumber)
+			t.Logf("EXPECTED: %q", expected)
+			t.Logf("ACTUAL:   %q", actual)
+			continue
+		}
+
+	}
+}
+
+
+func TestLogger_Warn(t *testing.T) {
+
+	tests := []struct {
+		level      uint8
+		Parameters []interface{}
+		Expected   string
+	}{
+		{
+			level:      0,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      1,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      2,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "TestLogger_Warn() -> Hello World!\n",
+		},
+	}
+
+	for testNumber, test := range tests {
+
+		var output strings.Builder
+		var logger Logger
+		logger.Writer = &output
+		logger = logger.Level(test.level)
+		logger.Warn(test.Parameters...)
+
+		if expected, actual := test.Expected, output.String(); expected != actual {
+			t.Errorf("For test #%d, Warn did not log what was expected.", testNumber)
+			t.Logf("EXPECTED: %q", expected)
+			t.Logf("ACTUAL:   %q", actual)
+			continue
+		}
+
+	}
+}
+
+
+func TestLogger_Highlight(t *testing.T) {
+
+	tests := []struct {
+		level      uint8
+		Parameters []interface{}
+		Expected   string
+	}{
+		{
+			level:      0,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      1,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      2,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      3,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "TestLogger_Highlight() -> Hello World!\n",
+		},
+	}
+
+	for testNumber, test := range tests {
+
+		var output strings.Builder
+		var logger Logger
+		logger.Writer = &output
+		logger = logger.Level(test.level)
+		logger.Highlight(test.Parameters...)
+
+		if expected, actual := test.Expected, output.String(); expected != actual {
+			t.Errorf("For test #%d, Highlight did not log what was expected.", testNumber)
+			t.Logf("EXPECTED: %q", expected)
+			t.Logf("ACTUAL:   %q", actual)
+			continue
+		}
+
+	}
+}
+
+func TestLogger_Inform(t *testing.T) {
+
+	tests := []struct {
+		level      uint8
+		Parameters []interface{}
+		Expected   string
+	}{
+		{
+			level:      0,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      1,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      2,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      3,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      4,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "TestLogger_Inform() -> Hello World!\n",
+		},
+	}
+
+	for testNumber, test := range tests {
+
+		var output strings.Builder
+		var logger Logger
+		logger.Writer = &output
+		logger = logger.Level(test.level)
+		logger.Inform(test.Parameters...)
+
+		if expected, actual := test.Expected, output.String(); expected != actual {
+			t.Errorf("For test #%d, Inform did not log what was expected.", testNumber)
+			t.Logf("EXPECTED: %q", expected)
+			t.Logf("ACTUAL:   %q", actual)
+			continue
+		}
+
+	}
+}
+
+func TestLogger_Log(t *testing.T) {
+
+	tests := []struct {
+		level      uint8
+		Parameters []interface{}
+		Expected   string
+	}{
+		{
+			level:      0,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      1,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      2,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      3,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      4,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      5,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "TestLogger_Log() -> Hello World!\n",
+		},
+	}
+
+	for testNumber, test := range tests {
+
+		var output strings.Builder
+		var logger Logger
+		logger.Writer = &output
+		logger = logger.Level(test.level)
+		logger.Log(test.Parameters...)
+
+		if expected, actual := test.Expected, output.String(); expected != actual {
+			t.Errorf("For test #%d, Log did not log what was expected.", testNumber)
+			t.Logf("EXPECTED: %q", expected)
+			t.Logf("ACTUAL:   %q", actual)
+			continue
+		}
+
+	}
+}
+
+func TestLogger_Trace(t *testing.T) {
+
+	tests := []struct {
+		level      uint8
+		Parameters []interface{}
+		Expected   string
+	}{
+		{
+			level:      0,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      1,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      2,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      3,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      4,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      5,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "",
+		},
+		{
+			level:      6,
+			Parameters: []interface{}{"Hello World!"},
+			Expected:   "TestLogger_Trace() -> Hello World!\n",
+		},
+	}
+
+	for testNumber, test := range tests {
+
+		var output strings.Builder
+		var logger Logger
+		logger.Writer = &output
+		logger = logger.Level(test.level)
+		logger.Trace(test.Parameters...)
+
+		if expected, actual := test.Expected, output.String(); expected != actual {
+			t.Errorf("For test #%d, Trace did not log what was expected.", testNumber)
+			t.Logf("EXPECTED: %q", expected)
+			t.Logf("ACTUAL:   %q", actual)
+			continue
+		}
+
 	}
 }
